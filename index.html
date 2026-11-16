@@ -7,7 +7,7 @@
     <style>
         :root {
             --bg-color: #121212;
-            --card-bg: rgba(28, 28, 32, 0.90);
+            --card-bg: rgba(28, 28, 32, 0.92);
             --accent-color: #d4af37;
             --text-color: #ffffff;
             --text-muted: #a0a0a5;
@@ -15,7 +15,6 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-color);
-            /* FONDO AJUSTADO PARA QUE EL LOGO SE VEA COMPLETO */
             background-image: linear-gradient(rgba(18, 18, 18, 0.88), rgba(18, 18, 18, 0.88)), url('logo.png');
             background-size: contain;
             background-repeat: no-repeat;
@@ -29,7 +28,7 @@
         }
         @media (min-width: 768px) {
             body {
-                background-size: 420px auto; /* Tamaño ideal en computadora para que no se corte */
+                background-size: 420px auto;
             }
         }
         header {
@@ -77,11 +76,84 @@
             align-items: center;
             gap: 10px;
         }
+        
+        /* CONTENEDOR DESPLEGABLE DE EVENTOS */
+        .eventos-wrapper {
+            position: relative;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+        }
+        .eventos-colapsado {
+            max-height: 270px; /* Muestra el primero completo y asoma el segundo */
+        }
+        .eventos-colapsado::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 85px;
+            background: linear-gradient(transparent, var(--bg-color));
+            pointer-events: none;
+        }
+        .eventos-expandido {
+            max-height: 3000px;
+        }
+        .toggle-btn-container {
+            display: flex;
+            justify-content: center;
+            margin-top: -10px;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 10;
+        }
+        .btn-toggle-eventos {
+            background: #1c1c20;
+            border: 1.5px solid var(--accent-color);
+            color: var(--accent-color);
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+            transition: transform 0.3s ease, background 0.2s;
+        }
+        .btn-toggle-eventos:hover {
+            background: rgba(212, 175, 55, 0.15);
+        }
+        .rotado {
+            transform: rotate(180deg);
+        }
+
+        /* SEPARADOR DE EVENTOS SECUNDARIOS */
+        .divider-eventos {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            margin: 18px 0 14px 0;
+            text-transform: uppercase;
+        }
+        .divider-eventos::before,
+        .divider-eventos::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #333;
+        }
+        .divider-eventos::before { margin-right: 12px; }
+        .divider-eventos::after { margin-left: 12px; }
+
         .card {
             background-color: var(--card-bg);
             border-radius: 14px;
             padding: 18px;
-            margin-bottom: 15px;
+            margin-bottom: 14px;
             border: 1px solid #2e2e34;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
             cursor: pointer;
@@ -93,7 +165,7 @@
         .card:active {
             transform: scale(0.99);
         }
-        .event-card {
+        .event-card-proximo {
             border: 1.5px solid var(--accent-color);
         }
         .event-header {
@@ -127,9 +199,7 @@
             gap: 14px;
             margin-bottom: 18px;
         }
-        .detail-row:last-child {
-            margin-bottom: 0;
-        }
+        .detail-row:last-child { margin-bottom: 0; }
         .detail-label {
             font-size: 0.75rem;
             color: var(--text-muted);
@@ -160,6 +230,22 @@
             border-color: var(--accent-color);
             color: var(--accent-color);
         }
+        .btn-whatsapp {
+            background-color: #25D366;
+            color: #121212;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            margin-top: 25px;
+        }
         input, textarea, button.action-btn {
             width: 100%;
             padding: 12px;
@@ -184,29 +270,39 @@
             border: none;
             font-size: 1rem;
         }
-        .btn-delete {
-            background-color: #c93b3b;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
-        .btn-delete:hover {
-            background-color: #a82c2c;
-        }
         .admin-event-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 8px;
             padding: 12px;
             background: #242429;
             border-radius: 8px;
             margin-bottom: 10px;
             border: 1px solid #333;
         }
+        .admin-actions {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+        .btn-small {
+            border: none;
+            padding: 6px 9px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.78rem;
+            font-weight: bold;
+            color: white;
+        }
+        .btn-order { background-color: #3c3c46; }
+        .btn-order:hover { background-color: #52525e; }
+        .btn-edit { background-color: #2b7de9; }
+        .btn-edit:hover { background-color: #1e64c4; }
+        .btn-delete { background-color: #c93b3b; }
+        .btn-delete:hover { background-color: #a82c2c; }
+
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -238,7 +334,6 @@
                 <p>Coro Getsemaní</p>
             </div>
             <button class="btn-config" onclick="abrirLogin()" title="Ajustes de Administrador">
-                <!-- Icono Engranaje SVG -->
                 <svg class="icon-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="3"></circle>
                     <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
@@ -248,7 +343,6 @@
 
         <!-- SECCIÓN DE EVENTOS -->
         <div class="section-title">
-            <!-- Icono Calendario con Check SVG -->
             <svg class="icon-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                 <line x1="16" y1="2" x2="16" y2="6"></line>
@@ -258,11 +352,22 @@
             </svg>
             Eventos
         </div>
-        <div id="lista-eventos"></div>
+
+        <div id="contenedor-desplegable" class="eventos-wrapper">
+            <div id="lista-eventos"></div>
+        </div>
+
+        <!-- Botón redondo desplegable (solo visible si hay más de 1 evento) -->
+        <div id="btn-toggle-box" class="toggle-btn-container hidden">
+            <button id="btn-toggle" class="btn-toggle-eventos" onclick="alternarEventos()" title="Mostrar/Ocultar más eventos">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            </button>
+        </div>
 
         <!-- SECCIÓN DE CANTOS -->
         <div class="section-title">
-            <!-- Icono Lista con Nota Musical SVG -->
             <svg class="icon-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M9 18V5l12-2v13"></path>
                 <circle cx="6" cy="18" r="3"></circle>
@@ -284,7 +389,6 @@
 
         <div class="card" style="cursor: default;">
             <div class="detail-row">
-                <!-- Icono Calendario Dorado SVG -->
                 <svg class="icon-svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#d4af37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                     <line x1="16" y1="2" x2="16" y2="6"></line>
@@ -298,7 +402,6 @@
             </div>
             
             <div class="detail-row">
-                <!-- Icono Gancho de Vestimenta Dorado SVG -->
                 <svg class="icon-svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#d4af37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M12 7a2 2 0 1 0-2-2"></path>
                     <path d="M12 7v2l8.5 5.5a1.5 1.5 0 0 1-.8 2.8H4.3a1.5 1.5 0 0 1-.8-2.8L12 9"></path>
@@ -310,7 +413,6 @@
             </div>
             
             <div class="detail-row">
-                <!-- Icono Pin Ubicación Dorado SVG -->
                 <svg class="icon-svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#d4af37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                     <circle cx="12" cy="10" r="3"></circle>
@@ -333,6 +435,14 @@
         <div id="det-repertorio" style="color: var(--text-muted); padding: 8px 4px; line-height: 1.6;">
             No hay cantos programados
         </div>
+
+        <!-- EXTRA: Botón para compartir por WhatsApp al grupo del coro -->
+        <button class="btn-whatsapp" onclick="compartirWhatsApp()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+            </svg>
+            Compartir aviso en WhatsApp
+        </button>
     </div>
 
     <!-- MODAL DE ACCESO / LOGIN -->
@@ -357,7 +467,7 @@
         <h2 style="color: var(--accent-color); margin-top: 0;">Panel de Administrador</h2>
         
         <div class="card" style="cursor: default;">
-            <h3 style="margin-top: 0;">Agregar Nuevo Evento</h3>
+            <h3 id="form-admin-titulo" style="margin-top: 0;">Agregar Nuevo Evento</h3>
             <label style="font-size: 0.85rem; color: var(--text-muted);">Evento:</label>
             <input type="text" id="in-evento" placeholder="Ej. Misa Dominical">
             
@@ -373,11 +483,13 @@
             <label style="font-size: 0.85rem; color: var(--text-muted);">Repertorio programado (un canto por renglón):</label>
             <textarea id="in-repertorio" rows="4" placeholder="1. Canto de entrada&#10;2. Señor ten piedad..."></textarea>
             
-            <button class="action-btn" onclick="guardarEvento()">Publicar Evento</button>
+            <button id="btn-guardar-evento" class="action-btn" onclick="guardarEvento()">Publicar Evento</button>
+            <button id="btn-cancelar-edicion" class="action-btn hidden" onclick="cancelarEdicion()" style="background-color: #444; color: white; margin-top: -6px;">Cancelar Edición</button>
         </div>
 
         <div class="card" style="cursor: default; margin-top: 20px;">
-            <h3 style="margin-top: 0;">Administrar Eventos Publicados</h3>
+            <h3 style="margin-top: 0; margin-bottom: 6px;">Ordenar y Administrar Eventos</h3>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0; margin-bottom: 14px;">Usa las flechas ▲ ▼ para acomodar los eventos. El primero siempre se mostrará como el más próximo.</p>
             <div id="lista-admin-eventos"></div>
         </div>
     </div>
@@ -386,7 +498,6 @@
         const ADMIN_USER = "admin";
         const ADMIN_PASS = "getsemani2026";
 
-        // Eventos iniciales (se guardan en el navegador para que no se pierdan al recargar)
         let eventos = JSON.parse(localStorage.getItem('eventos_getsemani')) || [
             {
                 id: 1,
@@ -398,32 +509,57 @@
             }
         ];
 
+        let eventosExpandidos = false;
+        let indiceEditando = null;
+        let eventoActualDetalle = null;
+
         function renderizarEventos() {
             const contenedorPrincipal = document.getElementById('lista-eventos');
             const contenedorAdmin = document.getElementById('lista-admin-eventos');
+            const wrapper = document.getElementById('contenedor-desplegable');
+            const toggleBox = document.getElementById('btn-toggle-box');
             
             contenedorPrincipal.innerHTML = '';
             contenedorAdmin.innerHTML = '';
 
             if (eventos.length === 0) {
-                contenedorPrincipal.innerHTML = `<div class="card" style="text-align: center; color: var(--text-muted); cursor: default;"><p>No hay eventos próximos programados.</p></div>`;
-                contenedorAdmin.innerHTML = `<p style="color: var(--text-muted); font-size: 0.9rem;">No hay eventos para eliminar.</p>`;
+                contenedorPrincipal.innerHTML = `<div class="card" style="text-align: center; color: var(--text-muted); cursor: default;"><p>No hay eventos programados.</p></div>`;
+                contenedorAdmin.innerHTML = `<p style="color: var(--text-muted); font-size: 0.9rem;">No hay eventos registrados.</p>`;
+                toggleBox.classList.add('hidden');
+                wrapper.className = "eventos-wrapper";
                 return;
             }
 
+            // Mostrar u ocultar el botón desplegable según la cantidad de eventos
+            if (eventos.length > 1) {
+                toggleBox.classList.remove('hidden');
+                wrapper.className = eventosExpandidos ? "eventos-wrapper eventos-expandido" : "eventos-wrapper eventos-colapsado";
+            } else {
+                toggleBox.classList.add('hidden');
+                wrapper.className = "eventos-wrapper";
+            }
+
             eventos.forEach((ev, index) => {
-                // Contar cuántos cantos tiene el repertorio
                 const lineasCantos = ev.repertorio.trim() ? ev.repertorio.trim().split('\n').filter(l => l.trim() !== '').length : 0;
                 const textoCantos = lineasCantos === 1 ? "1 canto" : `${lineasCantos} cantos`;
+                const esPrimero = index === 0;
+
+                // Separador visual después del primer evento (el más próximo)
+                if (index === 1) {
+                    const sep = document.createElement('div');
+                    sep.className = "divider-eventos";
+                    sep.innerText = "Más eventos / Anteriores";
+                    contenedorPrincipal.appendChild(sep);
+                }
 
                 // Tarjeta para la pantalla principal
                 const card = document.createElement('div');
-                card.className = "card event-card";
+                card.className = esPrimero ? "card event-card-proximo" : "card";
                 card.onclick = () => verDetalleEvento(ev);
                 card.innerHTML = `
                     <div class="event-header">
-                        <h3 style="margin: 0; font-size: 1.15rem;">${ev.titulo}</h3>
-                        <span class="event-tag">Próximo</span>
+                        <h3 style="margin: 0; font-size: 1.15rem; color: ${esPrimero ? '#ffffff' : '#d0d0d5'};">${ev.titulo}</h3>
+                        ${esPrimero ? '<span class="event-tag">Próximo</span>' : ''}
                     </div>
                     <div class="meta-row">
                         <svg class="icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
@@ -440,18 +576,82 @@
                 `;
                 contenedorPrincipal.appendChild(card);
 
-                // Elemento en el panel de administrador con botón de eliminar
+                // Elemento en panel de administrador con controles de orden, edición y eliminación
                 const adminItem = document.createElement('div');
                 adminItem.className = "admin-event-item";
                 adminItem.innerHTML = `
-                    <div>
-                        <strong style="display: block; font-size: 0.95rem;">${ev.titulo}</strong>
+                    <div style="flex: 1;">
+                        <strong style="display: block; font-size: 0.95rem; color: ${esPrimero ? 'var(--accent-color)' : '#fff'};">${esPrimero ? '★ ' : ''}${ev.titulo}</strong>
                         <span style="font-size: 0.8rem; color: var(--text-muted);">${ev.fecha}</span>
                     </div>
-                    <button class="btn-delete" onclick="eliminarEvento(${index})">Eliminar</button>
+                    <div class="admin-actions">
+                        ${index > 0 ? `<button class="btn-small btn-order" onclick="moverEvento(${index}, -1)" title="Subir">▲</button>` : ''}
+                        ${index < eventos.length - 1 ? `<button class="btn-small btn-order" onclick="moverEvento(${index}, 1)" title="Bajar">▼</button>` : ''}
+                        <button class="btn-small btn-edit" onclick="cargarEdicion(${index})">Editar</button>
+                        <button class="btn-small btn-delete" onclick="eliminarEvento(${index})">Eliminar</button>
+                    </div>
                 `;
                 contenedorAdmin.appendChild(adminItem);
             });
+        }
+
+        function alternarEventos() {
+            eventosExpandidos = !eventosExpandidos;
+            const wrapper = document.getElementById('contenedor-desplegable');
+            const btn = document.getElementById('btn-toggle');
+
+            if (eventosExpandidos) {
+                wrapper.className = "eventos-wrapper eventos-expandido";
+                btn.classList.add('rotado');
+            } else {
+                wrapper.className = "eventos-wrapper eventos-colapsado";
+                btn.classList.remove('rotado');
+            }
+        }
+
+        function moverEvento(index, direccion) {
+            const nuevoIndice = index + direccion;
+            if (nuevoIndice < 0 || nuevoIndice >= eventos.length) return;
+            
+            const temp = eventos[index];
+            eventos[index] = eventos[nuevoIndice];
+            eventos[nuevoIndice] = temp;
+
+            localStorage.setItem('eventos_getsemani', JSON.stringify(eventos));
+            renderizarEventos();
+        }
+
+        function cargarEdicion(index) {
+            const ev = eventos[index];
+            indiceEditando = index;
+
+            document.getElementById('in-evento').value = ev.titulo;
+            document.getElementById('in-fecha').value = ev.fecha;
+            document.getElementById('in-lugar').value = ev.lugar;
+            document.getElementById('in-vestimenta').value = ev.vestimenta;
+            document.getElementById('in-repertorio').value = ev.repertorio;
+
+            document.getElementById('form-admin-titulo').innerText = "Editando Evento";
+            document.getElementById('btn-guardar-evento').innerText = "Guardar Cambios";
+            document.getElementById('btn-cancelar-edicion').classList.remove('hidden');
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function cancelarEdicion() {
+            indiceEditando = null;
+            limpiarFormulario();
+            document.getElementById('form-admin-titulo').innerText = "Agregar Nuevo Evento";
+            document.getElementById('btn-guardar-evento').innerText = "Publicar Evento";
+            document.getElementById('btn-cancelar-edicion').classList.add('hidden');
+        }
+
+        function limpiarFormulario() {
+            document.getElementById('in-evento').value = '';
+            document.getElementById('in-fecha').value = '';
+            document.getElementById('in-lugar').value = '';
+            document.getElementById('in-vestimenta').value = '';
+            document.getElementById('in-repertorio').value = '';
         }
 
         function abrirLogin() {
@@ -478,6 +678,7 @@
         }
 
         function verDetalleEvento(ev) {
+            eventoActualDetalle = ev;
             document.getElementById('det-titulo').innerText = ev.titulo;
             document.getElementById('det-fecha').innerText = ev.fecha;
             document.getElementById('det-vestimenta').innerText = ev.vestimenta || "Vestimenta por definir";
@@ -496,7 +697,18 @@
             document.getElementById('vista-detalle').classList.remove('hidden');
         }
 
+        function compartirWhatsApp() {
+            if (!eventoActualDetalle) return;
+            const ev = eventoActualDetalle;
+            const rep = ev.repertorio && ev.repertorio.trim() !== "" ? `\n\n🎶 *Repertorio:*\n${ev.repertorio}` : "";
+            const texto = `✨ *CORO GETSEMANÍ* ✨\n\n📌 *Evento:* ${ev.titulo}\n📅 *Fecha:* ${ev.fecha}\n📍 *Lugar:* ${ev.lugar || 'Por definir'}\n👔 *Vestimenta:* ${ev.vestimenta || 'Por definir'}${rep}`;
+            
+            const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`;
+            window.open(url, '_blank');
+        }
+
         function volverInicio() {
+            cancelarEdicion();
             document.getElementById('vista-principal').classList.remove('hidden');
             document.getElementById('vista-detalle').classList.add('hidden');
             document.getElementById('vista-admin').classList.add('hidden');
@@ -514,35 +726,45 @@
                 return;
             }
 
-            eventos.unshift({
-                id: Date.now(),
-                titulo,
-                fecha,
-                lugar,
-                vestimenta,
-                repertorio
-            });
+            if (indiceEditando !== null) {
+                // Actualizar evento existente
+                eventos[indiceEditando] = {
+                    ...eventos[indiceEditando],
+                    titulo,
+                    fecha,
+                    lugar,
+                    vestimenta,
+                    repertorio
+                };
+                alert("¡Evento actualizado con éxito!");
+                cancelarEdicion();
+            } else {
+                // Agregar nuevo evento al principio
+                eventos.unshift({
+                    id: Date.now(),
+                    titulo,
+                    fecha,
+                    lugar,
+                    vestimenta,
+                    repertorio
+                });
+                alert("¡Evento publicado con éxito!");
+                limpiarFormulario();
+            }
 
             localStorage.setItem('eventos_getsemani', JSON.stringify(eventos));
             renderizarEventos();
-            alert("¡Evento publicado con éxito!");
-
-            document.getElementById('in-evento').value = '';
-            document.getElementById('in-fecha').value = '';
-            document.getElementById('in-lugar').value = '';
-            document.getElementById('in-vestimenta').value = '';
-            document.getElementById('in-repertorio').value = '';
         }
 
         function eliminarEvento(index) {
             if (confirm("¿Seguro que deseas eliminar este evento?")) {
                 eventos.splice(index, 1);
                 localStorage.setItem('eventos_getsemani', JSON.stringify(eventos));
+                if (indiceEditando === index) cancelarEdicion();
                 renderizarEventos();
             }
         }
 
-        // Cargar eventos al iniciar
         renderizarEventos();
     </script>
 </body>
