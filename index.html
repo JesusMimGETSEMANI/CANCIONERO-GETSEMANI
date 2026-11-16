@@ -7,264 +7,310 @@
     <style>
         :root {
             --bg-color: #121212;
-            --card-bg: #1e1e1e;
-            --accent-color: #d4af37;
+            --card-bg: rgba(30, 30, 30, 0.92); /* Ligeramente transparente para lucir el fondo */
+            --accent-color: #d4af37; /* Tono dorado elegante */
             --text-color: #ffffff;
             --text-muted: #aaaaaa;
         }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-color);
+            /* AQUÍ SE CONFIGURA EL FONDO CON TU LOGO */
+            background-image: linear-gradient(rgba(18,18,18,0.93), rgba(18,18,18,0.93)), url('logo.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
             color: var(--text-color);
             margin: 0;
             padding: 20px;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
         }
         header {
-            text-align: center;
-            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 15px;
         }
-        h1 {
+        .header-title h1 {
             color: var(--accent-color);
-            margin-bottom: 5px;
+            margin: 0;
+            font-size: 1.8rem;
+        }
+        .header-title p {
+            color: var(--text-muted);
+            margin: 2px 0 0 0;
+            font-size: 0.9rem;
+        }
+        .btn-config {
+            background: #1e1e1e;
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            font-size: 1.2rem;
+            padding: 8px 12px;
+            border-radius: 50%;
+            cursor: pointer;
         }
         .section-title {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             color: var(--accent-color);
-            border-bottom: 2px solid var(--accent-color);
-            padding-bottom: 5px;
-            margin-top: 30px;
-            margin-bottom: 15px;
+            margin-top: 25px;
+            margin-bottom: 12px;
+            font-weight: bold;
         }
         .card {
             background-color: var(--card-bg);
             border-radius: 12px;
-            padding: 15px;
+            padding: 16px;
             margin-bottom: 15px;
             border: 1px solid #333;
-            position: relative;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+        .card:active {
+            transform: scale(0.98);
         }
         .event-card {
             border-left: 4px solid var(--accent-color);
         }
-        .admin-section {
-            margin-top: 40px;
-            background: #181818;
-            padding: 20px;
-            border-radius: 12px;
-            border: 1px dashed var(--accent-color);
+        .event-tag {
+            background-color: var(--accent-color);
+            color: #000;
+            font-size: 0.7rem;
+            font-weight: bold;
+            padding: 3px 8px;
+            border-radius: 4px;
+            float: right;
+            text-transform: uppercase;
         }
-        input, textarea, button {
+        .back-btn {
+            background: transparent;
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        input, textarea, button.action-btn {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             margin-top: 8px;
             margin-bottom: 12px;
             background: #2a2a2a;
             border: 1px solid #444;
             color: white;
-            border-radius: 6px;
+            border-radius: 8px;
             box-sizing: border-box;
         }
-        button {
+        button.action-btn {
             background-color: var(--accent-color);
             color: #000;
             font-weight: bold;
             cursor: pointer;
             border: none;
         }
-        button:hover {
-            opacity: 0.9;
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
         }
-        .btn-delete {
-            background-color: #d9534f;
-            color: white;
-            width: auto;
-            padding: 5px 10px;
-            font-size: 0.8rem;
-            margin-top: 10px;
+        .modal-content {
+            background: #1e1e1e;
+            padding: 25px;
+            border-radius: 14px;
+            width: 90%;
+            max-width: 400px;
+            border: 1px solid var(--accent-color);
         }
-        .hidden { display: none; }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>Coro Getsemaní</h1>
-        <p style="color: var(--text-muted); margin:0;">Repertorio y Eventos Oficiales</p>
-    </header>
+    <!-- VISTA PRINCIPAL -->
+    <div id="vista-principal">
+        <header>
+            <div class="header-title">
+                <h1>Cancionero</h1>
+                <p>Coro Getsemaní</p>
+            </div>
+            <button class="btn-config" onclick="abrirLogin()" title="Ajustes de Administrador">⚙️</button>
+        </header>
 
-    <!-- SECCIÓN DE EVENTOS -->
-    <div class="section-title">📅 Próximos Eventos</div>
-    <div id="lista-eventos">
-        <p style="text-align: center; color: var(--text-muted);">Cargando eventos...</p>
+        <!-- SECCIÓN DE EVENTOS -->
+        <div class="section-title">📅 Eventos</div>
+        <div id="lista-eventos">
+            <!-- Evento por defecto de ejemplo -->
+            <div class="card event-card" onclick="verDetalleEvento('Desfile Revolución Mexicana', 'Viernes, 20 de noviembre de 2026 (8:00 p.m.)', 'Vestimenta formal del coro', 'Centro de Metepec', 'No hay canciones programadas')">
+                <span class="event-tag">Próximo</span>
+                <h3 style="margin: 0 0 8px 0;">Desfile Revolución Mexicana</h3>
+                <p style="margin: 4px 0; color: var(--text-muted); font-size: 0.9rem;">📅 Vie 20 de nov · 8:00 p.m.</p>
+                <p style="margin: 4px 0; color: var(--text-muted); font-size: 0.9rem;">📍 Centro de Metepec</p>
+                <p style="margin: 4px 0; color: var(--text-muted); font-size: 0.9rem;">🎵 0 canciones</p>
+            </div>
+        </div>
+
+        <!-- SECCIÓN DE CANTOS -->
+        <div class="section-title">🎵 Cantos</div>
+        <div class="card" style="text-align: center; color: var(--text-muted); cursor: default;">
+            <p>Próximamente se agregará el repertorio de cantos...</p>
+        </div>
     </div>
 
-    <!-- SECCIÓN DE CANTOS -->
-    <div class="section-title">🎵 Cantos</div>
-    <div class="card" style="text-align: center; color: var(--text-muted);">
-        <p>Próximamente se agregará el repertorio de cantos...</p>
-    </div>
-
-    <!-- PANEL DE AJUSTES / ADMINISTRADOR -->
-    <div class="admin-section">
-        <h3>⚙️ Ajustes de Administrador</h3>
+    <!-- VISTA DETALLE DE EVENTO (Estilo Captura 2 y 3) -->
+    <div id="vista-detalle" class="hidden">
+        <button class="back-btn" onclick="volverInicio()">← Volver al inicio</button>
         
-        <div id="login-box">
-            <p style="font-size: 0.9rem; color: var(--text-muted);">Acceso exclusivo para director/administrador.</p>
-            <input type="text" id="usuario" placeholder="Usuario">
-            <input type="password" id="contrasena" placeholder="Contraseña">
-            <button id="btn-login">Iniciar Sesión</button>
+        <h1 id="det-titulo" style="color: var(--accent-color); font-size: 2rem; margin-bottom: 5px;">Título del Evento</h1>
+        <p style="color: var(--text-muted); margin-bottom: 25px;">Coro Getsemaní</p>
+
+        <div class="card">
+            <p style="font-size: 0.75rem; color: var(--accent-color); font-weight: bold; margin-bottom: 2px;">FECHA Y HORA</p>
+            <p id="det-fecha" style="margin-top: 0;">--</p>
+            
+            <p style="font-size: 0.75rem; color: var(--accent-color); font-weight: bold; margin-bottom: 2px; margin-top: 15px;">VESTIMENTA</p>
+            <p id="det-vestimenta" style="margin-top: 0;">--</p>
+            
+            <p style="font-size: 0.75rem; color: var(--accent-color); font-weight: bold; margin-bottom: 2px; margin-top: 15px;">LUGAR</p>
+            <p id="det-lugar" style="margin-top: 0;">--</p>
         </div>
 
-        <div id="panel-admin" class="hidden">
-            <p style="color: #4CAF50; font-weight: bold;">✔ Sesión Iniciada como Administrador</p>
-            <h4>Agregar Nuevo Evento</h4>
-            <label>Evento:</label>
-            <input type="text" id="input-evento" placeholder="Ej. Misa Dominical / Concierto">
-            
-            <label>Fecha:</label>
-            <input type="text" id="input-fecha" placeholder="Ej. 25 de Noviembre">
-            
-            <label>Hora:</label>
-            <input type="text" id="input-hora" placeholder="Ej. 6:00 p.m.">
-            
-            <label>Vestimenta:</label>
-            <input type="text" id="input-vestimenta" placeholder="Ej. Formal negra / Playera del coro">
-            
-            <label>Repertorio programado:</label>
-            <textarea id="input-repertorio" rows="3" placeholder="Nombres de los cantos..."></textarea>
-            
-            <button id="btn-publicar">Publicar Evento en la Nube</button>
-            <button id="btn-logout" style="background: #555; color: white; margin-top: 5px;">Cerrar Sesión</button>
+        <div class="section-title" style="margin-top: 30px;">🎶 Repertorio Programado</div>
+        <div class="card" id="det-repertorio" style="color: var(--text-muted);">
+            No hay canciones programadas
         </div>
     </div>
 
-    <!-- CONEXIÓN CON FIREBASE -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    <!-- MODAL DE ACCESO / LOGIN (Se abre con la tuerca ⚙️) -->
+    <div id="modal-login" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h3 style="color: var(--accent-color); margin-top: 0; text-align: center;">Acceso Requerido</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); text-align: center;">Inicia sesión con tu cuenta de administrador para acceder a esta sección.</p>
+            
+            <input type="text" id="usuario" placeholder="Correo electrónico / Usuario">
+            <input type="password" id="contrasena" placeholder="Contraseña">
+            
+            <button class="action-btn" onclick="verificarAdmin()">Iniciar Sesión</button>
+            <div style="text-align: center; margin-top: 15px;">
+                <a href="#" onclick="cerrarLogin()" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none;">← Volver al inicio</a>
+            </div>
+        </div>
+    </div>
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyC6LGb55tPz8JgKf-QQP7bCfw_SGRSIdwM",
-            authDomain: "cancionerogetsemani.firebaseapp.com",
-            projectId: "cancionerogetsemani",
-            storageBucket: "cancionerogetsemani.firebasestorage.app",
-            messagingSenderId: "636767784133",
-            appId: "1:636767784133:web:ffdcbdd6b516f2a216f4ac",
-            measurementId: "G-RXJJQT3WK9"
-        };
+    <!-- PANEL DE ADMINISTRADOR (Para agregar eventos) -->
+    <div id="vista-admin" class="hidden">
+        <button class="back-btn" onclick="volverInicio()">Cerrar Sesión Admin</button>
+        <h2 style="color: var(--accent-color);">Panel de Administrador</h2>
+        
+        <div class="card">
+            <h3>Agregar Nuevo Evento</h3>
+            <label style="font-size: 0.85rem; color: var(--text-muted);">Evento:</label>
+            <input type="text" id="in-evento" placeholder="Ej. Misa Dominical">
+            
+            <label style="font-size: 0.85rem; color: var(--text-muted);">Fecha y Hora:</label>
+            <input type="text" id="in-fecha" placeholder="Ej. Dom 22 de nov · 11:00 a.m.">
+            
+            <label style="font-size: 0.85rem; color: var(--text-muted);">Lugar:</label>
+            <input type="text" id="in-lugar" placeholder="Ej. Parroquia Principal">
+            
+            <label style="font-size: 0.85rem; color: var(--text-muted);">Vestimenta:</label>
+            <input type="text" id="in-vestimenta" placeholder="Ej. Playera blanca del coro">
+            
+            <label style="font-size: 0.85rem; color: var(--text-muted);">Repertorio programado:</label>
+            <textarea id="in-repertorio" placeholder="Escribe los cantos separados por renglones..."></textarea>
+            
+            <button class="action-btn" onclick="guardarEvento()">Publicar Evento</button>
+        </div>
+    </div>
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
+    <script>
         const ADMIN_USER = "admin";
         const ADMIN_PASS = "getsemani2026";
-        let esAdmin = false;
 
-        // Leer eventos en tiempo real desde la nube
-        const q = query(collection(db, "eventos"), orderBy("creado", "desc"));
-        onSnapshot(q, (snapshot) => {
-            const contenedor = document.getElementById('lista-eventos');
-            contenedor.innerHTML = '';
+        function abrirLogin() {
+            document.getElementById('modal-login').classList.remove('hidden');
+        }
 
-            if (snapshot.empty) {
-                contenedor.innerHTML = `
-                    <div class="card" style="text-align: center; color: var(--text-muted);">
-                        <p>No hay eventos programados por el momento.</p>
-                    </div>`;
-                return;
-            }
+        function cerrarLogin() {
+            document.getElementById('modal-login').classList.add('hidden');
+        }
 
-            snapshot.forEach((documento) => {
-                const data = documento.data();
-                const nuevaCard = document.createElement('div');
-                nuevaCard.className = "card event-card";
-                
-                let botonEliminar = esAdmin ? `<button class="btn-delete" data-id="${documento.id}">🗑️ Eliminar evento</button>` : '';
-
-                nuevaCard.innerHTML = `
-                    <h3 style="margin-top:0; color: var(--accent-color);">${data.evento}</h3>
-                    <p style="margin:5px 0;"><strong>📅 Fecha:</strong> ${data.fecha}</p>
-                    <p style="margin:5px 0;"><strong>⏰ Hora:</strong> ${data.hora}</p>
-                    <p style="margin:5px 0;"><strong>👔 Vestimenta:</strong> ${data.vestimenta}</p>
-                    <p style="margin:5px 0;"><strong>🎶 Repertorio:</strong><br>${data.repertorio.replace(/\n/g, '<br>')}</p>
-                    ${botonEliminar}
-                `;
-                contenedor.appendChild(nuevaCard);
-            });
-
-            // Asignar función a botones de eliminar si es admin
-            document.querySelectorAll('.btn-delete').forEach(btn => {
-                btn.addEventListener('click', async (e) => {
-                    const id = e.target.getAttribute('data-id');
-                    if (confirm("¿Seguro que deseas borrar este evento?")) {
-                        await deleteDoc(doc(db, "eventos", id));
-                    }
-                });
-            });
-        });
-
-        // Iniciar sesión
-        document.getElementById('btn-login').addEventListener('click', () => {
+        function verificarAdmin() {
             const u = document.getElementById('usuario').value;
             const p = document.getElementById('contrasena').value;
 
             if (u === ADMIN_USER && p === ADMIN_PASS) {
-                esAdmin = true;
-                document.getElementById('login-box').classList.add('hidden');
-                document.getElementById('panel-admin').classList.remove('hidden');
-                // Forzar recarga visual de botones de borrar
-                document.querySelectorAll('.event-card').forEach(card => location.reload());
+                cerrarLogin();
+                document.getElementById('vista-principal').classList.add('hidden');
+                document.getElementById('vista-admin').classList.remove('hidden');
+                document.getElementById('usuario').value = '';
+                document.getElementById('contrasena').value = '';
             } else {
                 alert("Usuario o contraseña incorrectos.");
             }
-        });
+        }
 
-        // Publicar evento en Firestore
-        document.getElementById('btn-publicar').addEventListener('click', async () => {
-            const evento = document.getElementById('input-evento').value;
-            const fecha = document.getElementById('input-fecha').value;
-            const hora = document.getElementById('input-hora').value;
-            const vestimenta = document.getElementById('input-vestimenta').value;
-            const repertorio = document.getElementById('input-repertorio').value;
+        function verDetalleEvento(titulo, fecha, vestimenta, lugar, repertorio) {
+            document.getElementById('det-titulo').innerText = titulo;
+            document.getElementById('det-fecha').innerText = fecha;
+            document.getElementById('det-vestimenta').innerText = vestimenta;
+            document.getElementById('det-lugar').innerText = lugar;
+            document.getElementById('det-repertorio').innerHTML = repertorio.replace(/\n/g, '<br>');
 
-            if(!evento || !fecha) {
-                alert("Por lo menos llena el nombre del evento y la fecha.");
+            document.getElementById('vista-principal').classList.add('hidden');
+            document.getElementById('vista-detalle').classList.remove('hidden');
+        }
+
+        function volverInicio() {
+            document.getElementById('vista-principal').classList.remove('hidden');
+            document.getElementById('vista-detalle').classList.add('hidden');
+            document.getElementById('vista-admin').classList.add('hidden');
+        }
+
+        function guardarEvento() {
+            const titulo = document.getElementById('in-evento').value;
+            const fecha = document.getElementById('in-fecha').value;
+            const lugar = document.getElementById('in-lugar').value;
+            const vestimenta = document.getElementById('in-vestimenta').value;
+            const repertorio = document.getElementById('in-repertorio').value || "No hay canciones programadas";
+
+            if (!titulo || !fecha) {
+                alert("Por favor llena al menos el nombre y la fecha del evento.");
                 return;
             }
 
-            try {
-                await addDoc(collection(db, "eventos"), {
-                    evento: evento,
-                    fecha: fecha,
-                    hora: hora || "Por definir",
-                    vestimenta: vestimenta || "Por definir",
-                    repertorio: repertorio || "Por definir",
-                    creado: serverTimestamp()
-                });
+            const contenedor = document.getElementById('lista-eventos');
+            const nuevaCard = document.createElement('div');
+            nuevaCard.className = "card event-card";
+            // Escapamos comillas simples para evitar errores en JavaScript
+            const repLimpio = repertorio.replace(/'/g, "\\'");
+            nuevaCard.setAttribute('onclick', `verDetalleEvento('${titulo}', '${fecha}', '${vestimenta}', '${lugar}', '${repLimpio}')`);
+            
+            nuevaCard.innerHTML = `
+                <span class="event-tag">Próximo</span>
+                <h3 style="margin: 0 0 8px 0;">${titulo}</h3>
+                <p style="margin: 4px 0; color: var(--text-muted); font-size: 0.9rem;">📅 ${fecha}</p>
+                <p style="margin: 4px 0; color: var(--text-muted); font-size: 0.9rem;">📍 ${lugar}</p>
+            `;
 
-                document.getElementById('input-evento').value = '';
-                document.getElementById('input-fecha').value = '';
-                document.getElementById('input-hora').value = '';
-                document.getElementById('input-vestimenta').value = '';
-                document.getElementById('input-repertorio').value = '';
+            contenedor.prepend(nuevaCard);
+            alert("¡Evento publicado con éxito!");
+            volverInicio();
 
-                alert("¡Evento guardado en la nube y visible para todo el coro!");
-            } catch (error) {
-                alert("Error al guardar: " + error.message);
-            }
-        });
-
-        // Cerrar sesión
-        document.getElementById('btn-logout').addEventListener('click', () => {
-            esAdmin = false;
-            document.getElementById('panel-admin').classList.add('hidden');
-            document.getElementById('login-box').classList.remove('hidden');
-            document.getElementById('usuario').value = '';
-            document.getElementById('contrasena').value = '';
-        });
+            // Limpiar inputs
+            document.getElementById('in-evento').value = '';
+            document.getElementById('in-fecha').value = '';
+            document.getElementById('in-lugar').value = '';
+            document.getElementById('in-vestimenta').value = '';
+            document.getElementById('in-repertorio').value = '';
+        }
     </script>
 </body>
 </html>
