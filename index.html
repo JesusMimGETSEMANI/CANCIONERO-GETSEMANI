@@ -8,7 +8,7 @@
         :root {
             --bg-color: #121212;
             --card-bg: #1e1e1e;
-            --accent-color: #d4af37; /* Tono dorado elegante */
+            --accent-color: #d4af37;
             --text-color: #ffffff;
             --text-muted: #aaaaaa;
         }
@@ -18,6 +18,9 @@
             color: var(--text-color);
             margin: 0;
             padding: 20px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
         }
         header {
             text-align: center;
@@ -41,6 +44,7 @@
             padding: 15px;
             margin-bottom: 15px;
             border: 1px solid #333;
+            position: relative;
         }
         .event-card {
             border-left: 4px solid var(--accent-color);
@@ -73,6 +77,14 @@
         button:hover {
             opacity: 0.9;
         }
+        .btn-delete {
+            background-color: #d9534f;
+            color: white;
+            width: auto;
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            margin-top: 10px;
+        }
         .hidden { display: none; }
     </style>
 </head>
@@ -86,13 +98,7 @@
     <!-- SECCIÓN DE EVENTOS -->
     <div class="section-title">📅 Próximos Eventos</div>
     <div id="lista-eventos">
-        <div class="card event-card">
-            <h3>Primer Evento Programado</h3>
-            <p><strong>Fecha:</strong> Por definir</p>
-            <p><strong>Hora:</strong> --:--</p>
-            <p><strong>Vestimenta:</strong> Por definir</p>
-            <p><strong>Repertorio:</strong> Próximamente</p>
-        </div>
+        <p style="text-align: center; color: var(--text-muted);">Cargando eventos...</p>
     </div>
 
     <!-- SECCIÓN DE CANTOS -->
@@ -105,15 +111,13 @@
     <div class="admin-section">
         <h3>⚙️ Ajustes de Administrador</h3>
         
-        <!-- Formulario de Login -->
         <div id="login-box">
             <p style="font-size: 0.9rem; color: var(--text-muted);">Acceso exclusivo para director/administrador.</p>
             <input type="text" id="usuario" placeholder="Usuario">
             <input type="password" id="contrasena" placeholder="Contraseña">
-            <button onclick="verificarAdmin()">Iniciar Sesión</button>
+            <button id="btn-login">Iniciar Sesión</button>
         </div>
 
-        <!-- Panel Oculto para Agregar Eventos -->
         <div id="panel-admin" class="hidden">
             <p style="color: #4CAF50; font-weight: bold;">✔ Sesión Iniciada como Administrador</p>
             <h4>Agregar Nuevo Evento</h4>
@@ -130,32 +134,96 @@
             <input type="text" id="input-vestimenta" placeholder="Ej. Formal negra / Playera del coro">
             
             <label>Repertorio programado:</label>
-            <textarea id="input-repertorio" placeholder="Nombres de los cantos..."></textarea>
+            <textarea id="input-repertorio" rows="3" placeholder="Nombres de los cantos..."></textarea>
             
-            <button onclick="agregarEvento()">Publicar Evento</button>
-            <button onclick="cerrarSesion()" style="background: #d9534f; color: white; margin-top: 10px;">Cerrar Sesión</button>
+            <button id="btn-publicar">Publicar Evento en la Nube</button>
+            <button id="btn-logout" style="background: #555; color: white; margin-top: 5px;">Cerrar Sesión</button>
         </div>
     </div>
 
-    <script>
-        // Tus credenciales temporales de Administrador
+    <!-- CONEXIÓN CON FIREBASE -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC6LGb55tPz8JgKf-QQP7bCfw_SGRSIdwM",
+            authDomain: "cancionerogetsemani.firebaseapp.com",
+            projectId: "cancionerogetsemani",
+            storageBucket: "cancionerogetsemani.firebasestorage.app",
+            messagingSenderId: "636767784133",
+            appId: "1:636767784133:web:ffdcbdd6b516f2a216f4ac",
+            measurementId: "G-RXJJQT3WK9"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
         const ADMIN_USER = "admin";
         const ADMIN_PASS = "getsemani2026";
+        let esAdmin = false;
 
-        function verificarAdmin() {
+        // Leer eventos en tiempo real desde la nube
+        const q = query(collection(db, "eventos"), orderBy("creado", "desc"));
+        onSnapshot(q, (snapshot) => {
+            const contenedor = document.getElementById('lista-eventos');
+            contenedor.innerHTML = '';
+
+            if (snapshot.empty) {
+                contenedor.innerHTML = `
+                    <div class="card" style="text-align: center; color: var(--text-muted);">
+                        <p>No hay eventos programados por el momento.</p>
+                    </div>`;
+                return;
+            }
+
+            snapshot.forEach((documento) => {
+                const data = documento.data();
+                const nuevaCard = document.createElement('div');
+                nuevaCard.className = "card event-card";
+                
+                let botonEliminar = esAdmin ? `<button class="btn-delete" data-id="${documento.id}">🗑️ Eliminar evento</button>` : '';
+
+                nuevaCard.innerHTML = `
+                    <h3 style="margin-top:0; color: var(--accent-color);">${data.evento}</h3>
+                    <p style="margin:5px 0;"><strong>📅 Fecha:</strong> ${data.fecha}</p>
+                    <p style="margin:5px 0;"><strong>⏰ Hora:</strong> ${data.hora}</p>
+                    <p style="margin:5px 0;"><strong>👔 Vestimenta:</strong> ${data.vestimenta}</p>
+                    <p style="margin:5px 0;"><strong>🎶 Repertorio:</strong><br>${data.repertorio.replace(/\n/g, '<br>')}</p>
+                    ${botonEliminar}
+                `;
+                contenedor.appendChild(nuevaCard);
+            });
+
+            // Asignar función a botones de eliminar si es admin
+            document.querySelectorAll('.btn-delete').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const id = e.target.getAttribute('data-id');
+                    if (confirm("¿Seguro que deseas borrar este evento?")) {
+                        await deleteDoc(doc(db, "eventos", id));
+                    }
+                });
+            });
+        });
+
+        // Iniciar sesión
+        document.getElementById('btn-login').addEventListener('click', () => {
             const u = document.getElementById('usuario').value;
             const p = document.getElementById('contrasena').value;
 
             if (u === ADMIN_USER && p === ADMIN_PASS) {
+                esAdmin = true;
                 document.getElementById('login-box').classList.add('hidden');
                 document.getElementById('panel-admin').classList.remove('hidden');
-                alert("¡Bienvenido, Administrador!");
+                // Forzar recarga visual de botones de borrar
+                document.querySelectorAll('.event-card').forEach(card => location.reload());
             } else {
                 alert("Usuario o contraseña incorrectos.");
             }
-        }
+        });
 
-        function agregarEvento() {
+        // Publicar evento en Firestore
+        document.getElementById('btn-publicar').addEventListener('click', async () => {
             const evento = document.getElementById('input-evento').value;
             const fecha = document.getElementById('input-fecha').value;
             const hora = document.getElementById('input-hora').value;
@@ -167,36 +235,36 @@
                 return;
             }
 
-            const contenedor = document.getElementById('lista-eventos');
-            const nuevaCard = document.createElement('div');
-            nuevaCard.className = "card event-card";
-            nuevaCard.innerHTML = `
-                <h3>${evento}</h3>
-                <p><strong>Fecha:</strong> ${fecha}</p>
-                <p><strong>Hora:</strong> ${hora}</p>
-                <p><strong>Vestimenta:</strong> ${vestimenta}</p>
-                <p><strong>Repertorio programado:</strong><br>${repertorio.replace(/\n/g, '<br>')}</p>
-            `;
-            
-            // Añadir arriba de los eventos
-            contenedor.prepend(nuevaCard);
+            try {
+                await addDoc(collection(db, "eventos"), {
+                    evento: evento,
+                    fecha: fecha,
+                    hora: hora || "Por definir",
+                    vestimenta: vestimenta || "Por definir",
+                    repertorio: repertorio || "Por definir",
+                    creado: serverTimestamp()
+                });
 
-            // Limpiar inputs
-            document.getElementById('input-evento').value = '';
-            document.getElementById('input-fecha').value = '';
-            document.getElementById('input-hora').value = '';
-            document.getElementById('input-vestimenta').value = '';
-            document.getElementById('input-repertorio').value = '';
+                document.getElementById('input-evento').value = '';
+                document.getElementById('input-fecha').value = '';
+                document.getElementById('input-hora').value = '';
+                document.getElementById('input-vestimenta').value = '';
+                document.getElementById('input-repertorio').value = '';
 
-            alert("¡Evento publicado con éxito!");
-        }
+                alert("¡Evento guardado en la nube y visible para todo el coro!");
+            } catch (error) {
+                alert("Error al guardar: " + error.message);
+            }
+        });
 
-        function cerrarSesion() {
+        // Cerrar sesión
+        document.getElementById('btn-logout').addEventListener('click', () => {
+            esAdmin = false;
             document.getElementById('panel-admin').classList.add('hidden');
             document.getElementById('login-box').classList.remove('hidden');
             document.getElementById('usuario').value = '';
             document.getElementById('contrasena').value = '';
-        }
+        });
     </script>
 </body>
 </html>
