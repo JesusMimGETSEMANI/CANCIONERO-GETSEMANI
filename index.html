@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cancionero - Coro Getsemaní</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --accent-color: #d4af37; /* Tono dorado elegante */
+            --text-color: #ffffff;
+            --text-muted: #aaaaaa;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h1 {
+            color: var(--accent-color);
+            margin-bottom: 5px;
+        }
+        .section-title {
+            font-size: 1.2rem;
+            color: var(--accent-color);
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 5px;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #333;
+        }
+        .event-card {
+            border-left: 4px solid var(--accent-color);
+        }
+        .admin-section {
+            margin-top: 40px;
+            background: #181818;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px dashed var(--accent-color);
+        }
+        input, textarea, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 8px;
+            margin-bottom: 12px;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            color: white;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: var(--accent-color);
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Coro Getsemaní</h1>
+        <p style="color: var(--text-muted); margin:0;">Repertorio y Eventos Oficiales</p>
+    </header>
+
+    <!-- SECCIÓN DE EVENTOS -->
+    <div class="section-title">📅 Próximos Eventos</div>
+    <div id="lista-eventos">
+        <div class="card event-card">
+            <h3>Primer Evento Programado</h3>
+            <p><strong>Fecha:</strong> Por definir</p>
+            <p><strong>Hora:</strong> --:--</p>
+            <p><strong>Vestimenta:</strong> Por definir</p>
+            <p><strong>Repertorio:</strong> Próximamente</p>
+        </div>
+    </div>
+
+    <!-- SECCIÓN DE CANTOS -->
+    <div class="section-title">🎵 Cantos</div>
+    <div class="card" style="text-align: center; color: var(--text-muted);">
+        <p>Próximamente se agregará el repertorio de cantos...</p>
+    </div>
+
+    <!-- PANEL DE AJUSTES / ADMINISTRADOR -->
+    <div class="admin-section">
+        <h3>⚙️ Ajustes de Administrador</h3>
+        
+        <!-- Formulario de Login -->
+        <div id="login-box">
+            <p style="font-size: 0.9rem; color: var(--text-muted);">Acceso exclusivo para director/administrador.</p>
+            <input type="text" id="usuario" placeholder="Usuario">
+            <input type="password" id="contrasena" placeholder="Contraseña">
+            <button onclick="verificarAdmin()">Iniciar Sesión</button>
+        </div>
+
+        <!-- Panel Oculto para Agregar Eventos -->
+        <div id="panel-admin" class="hidden">
+            <p style="color: #4CAF50; font-weight: bold;">✔ Sesión Iniciada como Administrador</p>
+            <h4>Agregar Nuevo Evento</h4>
+            <label>Evento:</label>
+            <input type="text" id="input-evento" placeholder="Ej. Misa Dominical / Concierto">
+            
+            <label>Fecha:</label>
+            <input type="text" id="input-fecha" placeholder="Ej. 25 de Noviembre">
+            
+            <label>Hora:</label>
+            <input type="text" id="input-hora" placeholder="Ej. 6:00 p.m.">
+            
+            <label>Vestimenta:</label>
+            <input type="text" id="input-vestimenta" placeholder="Ej. Formal negra / Playera del coro">
+            
+            <label>Repertorio programado:</label>
+            <textarea id="input-repertorio" placeholder="Nombres de los cantos..."></textarea>
+            
+            <button onclick="agregarEvento()">Publicar Evento</button>
+            <button onclick="cerrarSesion()" style="background: #d9534f; color: white; margin-top: 10px;">Cerrar Sesión</button>
+        </div>
+    </div>
+
+    <script>
+        // Tus credenciales temporales de Administrador
+        const ADMIN_USER = "admin";
+        const ADMIN_PASS = "getsemani2026";
+
+        function verificarAdmin() {
+            const u = document.getElementById('usuario').value;
+            const p = document.getElementById('contrasena').value;
+
+            if (u === ADMIN_USER && p === ADMIN_PASS) {
+                document.getElementById('login-box').classList.add('hidden');
+                document.getElementById('panel-admin').classList.remove('hidden');
+                alert("¡Bienvenido, Administrador!");
+            } else {
+                alert("Usuario o contraseña incorrectos.");
+            }
+        }
+
+        function agregarEvento() {
+            const evento = document.getElementById('input-evento').value;
+            const fecha = document.getElementById('input-fecha').value;
+            const hora = document.getElementById('input-hora').value;
+            const vestimenta = document.getElementById('input-vestimenta').value;
+            const repertorio = document.getElementById('input-repertorio').value;
+
+            if(!evento || !fecha) {
+                alert("Por lo menos llena el nombre del evento y la fecha.");
+                return;
+            }
+
+            const contenedor = document.getElementById('lista-eventos');
+            const nuevaCard = document.createElement('div');
+            nuevaCard.className = "card event-card";
+            nuevaCard.innerHTML = `
+                <h3>${evento}</h3>
+                <p><strong>Fecha:</strong> ${fecha}</p>
+                <p><strong>Hora:</strong> ${hora}</p>
+                <p><strong>Vestimenta:</strong> ${vestimenta}</p>
+                <p><strong>Repertorio programado:</strong><br>${repertorio.replace(/\n/g, '<br>')}</p>
+            `;
+            
+            // Añadir arriba de los eventos
+            contenedor.prepend(nuevaCard);
+
+            // Limpiar inputs
+            document.getElementById('input-evento').value = '';
+            document.getElementById('input-fecha').value = '';
+            document.getElementById('input-hora').value = '';
+            document.getElementById('input-vestimenta').value = '';
+            document.getElementById('input-repertorio').value = '';
+
+            alert("¡Evento publicado con éxito!");
+        }
+
+        function cerrarSesion() {
+            document.getElementById('panel-admin').classList.add('hidden');
+            document.getElementById('login-box').classList.remove('hidden');
+            document.getElementById('usuario').value = '';
+            document.getElementById('contrasena').value = '';
+        }
+    </script>
+</body>
+</html>
